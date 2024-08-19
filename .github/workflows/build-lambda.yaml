@@ -49,6 +49,6 @@ jobs:
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "GitHub Actions"
-          git add ../../build/${{ matrix.lambda-name }}/lambda_function_${{ matrix.python-version }}.zip
+          git add files/build/${{ matrix.lambda-name }}/lambda_function_${{ matrix.python-version }}.zip
           git commit -m "Add Lambda deployment package for ${{ matrix.lambda-name }} on Python ${{ matrix.python-version }}"
           git push
