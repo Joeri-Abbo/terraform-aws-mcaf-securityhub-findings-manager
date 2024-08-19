@@ -1,0 +1,48 @@
+name: Build and Package Lambdas
+
+on:
+  push:
+    # branches: Maybe only limit to main instead of all pushes?
+      # - main  
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        lambda-name: ['findings-manager-jira', 'securityhub-findings-manager']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          cd files/lambda-artifacts/${{ matrix.lambda-name }}
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create Lambda deployment package
+        run: |
+          mkdir -p ../../build/${{ matrix.lambda-name }}
+          cd venv/lib/python${{ matrix.python-version }}/site-packages
+          zip -r ../../../../../../build/${{ matrix.lambda-name }}/lambda_function_${{ matrix.python-version }}.zip .
+          cd ../../../../../../files/lambda-artifacts/${{ matrix.lambda-name }}
+          zip -g ../../build/${{ matrix.lambda-name }}/lambda_function_${{ matrix.python-version }}.zip -r *
+
+      - name: Commit deployment packages
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+          git add ../../build/${{ matrix.lambda-name }}/lambda_function_${{ matrix.python-version }}.zip
+          git commit -m "Add Lambda deployment package for ${{ matrix.lambda-name }} on Python ${{ matrix.python-version }}"
+          git push
