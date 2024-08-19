@@ -63,7 +63,6 @@ jobs:
 
       - name: Move artifacts to correct directories
         run: |
-          rm -rf files/build/*
           for dir in files/build/*; do
             if [ -d "$dir" ]; then
               for file in $dir/*.zip; do
