@@ -34,11 +34,11 @@ jobs:
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
-          ls
 
 
       - name: Create Lambda deployment package
         run: |
+          cd files/lambda-artifacts/${{ matrix.lambda-name }}
           mkdir -p ../../build/${{ matrix.lambda-name }}
           cd venv/lib/python${{ matrix.python-version }}/site-packages
           zip -r ../../../../../../build/${{ matrix.lambda-name }}/lambda_function_${{ matrix.python-version }}.zip .
