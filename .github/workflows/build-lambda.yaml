@@ -10,11 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
-      # max-parallel: 1
       matrix:
         python-version: ["3.8",
-        # "3.9", "3.10", "3.11", "3.12"
-        ]
+        #  "3.9", "3.10", "3.11", "3.12"
+         ]
         lambda-name: ["findings-manager-jira", "securityhub-findings-manager"]
 
     steps:
@@ -46,7 +45,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.lambda-name }}-python${{ matrix.python-version }}
+          name: ${{ matrix.lambda-name }}-${{ matrix.python-version }}
           path: files/build/${{ matrix.lambda-name }}/lambda_function_${{ matrix.python-version }}.zip
 
   push:
@@ -61,6 +60,17 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           path: files/build/
+
+      - name: Move artifacts to correct directories
+        run: |
+          for dir in files/build/*; do
+            if [ -d "$dir" ]; then
+              for file in $dir/*.zip; do
+                mv "$file" "$dir/../${dir##*/}/$(basename $file)"
+              done
+              rm -r "$dir"
+            fi
+          done
 
       - name: Commit deployment packages
         run: |
