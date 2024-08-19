@@ -10,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
-      max-parallel: 1
+      # max-parallel: 1
       matrix:
-        python-version: ["3.8", 
+        python-version: ["3.8",
         # "3.9", "3.10", "3.11", "3.12"
         ]
         lambda-name: ["findings-manager-jira", "securityhub-findings-manager"]
@@ -46,10 +46,10 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: lambda-packages-${{ matrix.lambda-name }}-${{ matrix.python-version }}
+          name: ${{ matrix.lambda-name }}-python${{ matrix.python-version }}
           path: files/build/${{ matrix.lambda-name }}/lambda_function_${{ matrix.python-version }}.zip
 
-  combine-and-push:
+  push:
     runs-on: ubuntu-latest
     needs: build
 
@@ -60,25 +60,15 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v3
         with:
-          path: combined_packages/
+          path: files/build/
 
-      - name: Combine all artifacts
-        run: |
-          mkdir -p files/build/combined
-          cd combined_packages
-          for file in */*.zip; do
-            unzip -o -d ../files/build/combined/ "$file"
-          done
-          cd ../files/build/combined
-          zip -r ../final_lambda_package.zip .
-
-      - name: Commit combined deployment package
+      - name: Commit deployment packages
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "GitHub Actions"
-          git add files/build/final_lambda_package.zip
-          git commit -m "Add combined Lambda deployment package"
-
-      - name: Push combined deployment package
+          git add files/build/**/*.zip
+          git commit -m "Add all Lambda deployment packages from previous builds"
+      
+      - name: Push deployment packages
         run: |
           git push
