@@ -42,8 +42,8 @@ jobs:
           mkdir -p ../../build/${{ matrix.lambda-name }}
           cd venv/lib/python${{ matrix.python-version }}/site-packages
           zip -r ../../../../../../build/${{ matrix.lambda-name }}/lambda_function_${{ matrix.python-version }}.zip .
-          cd ../../../../../../files/lambda-artifacts/${{ matrix.lambda-name }}
-          zip -g ../../build/${{ matrix.lambda-name }}/lambda_function_${{ matrix.python-version }}.zip -r *
+          cd ../../../../
+          zip -g ../../build/${{ matrix.lambda-name }}/lambda_function_${{ matrix.python-version }}.zip -r  * --exclude venv/\*
 
       - name: Commit deployment packages
         run: |
