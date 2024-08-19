@@ -3,7 +3,7 @@ module "jira_lambda_iam_role" {
   count = var.jira_integration.enabled ? 1 : 0
 
   source  = "schubergphilis/mcaf-role/aws"
-  version = "~> 0.3.2"
+  version = "~> 0.4.0"
 
   name                  = var.jira_integration.lambda_settings.iam_role_name
   create_policy         = true
@@ -84,11 +84,11 @@ module "jira_lambda_deployment_package" {
   count = var.jira_integration.enabled ? 1 : 0
 
   source  = "terraform-aws-modules/lambda/aws"
-  version = "~> 3.3.0"
+  version = "~> 7.7.1"
 
   create_function          = false
   recreate_missing_package = false
-  runtime                  = "python3.8"
+  runtime                  = var.jira_integration.lambda_settings.runtime
   s3_bucket                = module.findings_manager_bucket.name
   s3_object_storage_class  = "STANDARD"
   source_path              = "${path.module}/files/lambda-artifacts/findings-manager-jira"
@@ -101,7 +101,7 @@ module "jira_lambda" {
   count = var.jira_integration.enabled ? 1 : 0
 
   source  = "schubergphilis/mcaf-lambda/aws"
-  version = "~> 1.1.0"
+  version = "~> 1.4.1"
 
   name                        = var.jira_integration.lambda_settings.name
   create_policy               = false

@@ -123,16 +123,16 @@ Rules:
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_findings_manager_bucket"></a> [findings\_manager\_bucket](#module\_findings\_manager\_bucket) | schubergphilis/mcaf-s3/aws | ~> 0.11.0 |
-| <a name="module_findings_manager_events_lambda"></a> [findings\_manager\_events\_lambda](#module\_findings\_manager\_events\_lambda) | schubergphilis/mcaf-lambda/aws | ~> 1.1.0 |
+| <a name="module_findings_manager_bucket"></a> [findings\_manager\_bucket](#module\_findings\_manager\_bucket) | schubergphilis/mcaf-s3/aws | ~> 0.14.1 |
+| <a name="module_findings_manager_events_lambda"></a> [findings\_manager\_events\_lambda](#module\_findings\_manager\_events\_lambda) | schubergphilis/mcaf-lambda/aws | ~> 1.4.1 |
 | <a name="module_findings_manager_lambda_deployment_package"></a> [findings\_manager\_lambda\_deployment\_package](#module\_findings\_manager\_lambda\_deployment\_package) | terraform-aws-modules/lambda/aws | ~> 3.3.0 |
-| <a name="module_findings_manager_lambda_iam_role"></a> [findings\_manager\_lambda\_iam\_role](#module\_findings\_manager\_lambda\_iam\_role) | schubergphilis/mcaf-role/aws | ~> 0.3.2 |
-| <a name="module_findings_manager_trigger_lambda"></a> [findings\_manager\_trigger\_lambda](#module\_findings\_manager\_trigger\_lambda) | schubergphilis/mcaf-lambda/aws | ~> 1.1.0 |
-| <a name="module_jira_eventbridge_iam_role"></a> [jira\_eventbridge\_iam\_role](#module\_jira\_eventbridge\_iam\_role) | schubergphilis/mcaf-role/aws | ~> 0.3.2 |
+| <a name="module_findings_manager_lambda_iam_role"></a> [findings\_manager\_lambda\_iam\_role](#module\_findings\_manager\_lambda\_iam\_role) | schubergphilis/mcaf-role/aws | ~> 0.4.0 |
+| <a name="module_findings_manager_trigger_lambda"></a> [findings\_manager\_trigger\_lambda](#module\_findings\_manager\_trigger\_lambda) | schubergphilis/mcaf-lambda/aws | ~> 1.4.1 |
+| <a name="module_jira_eventbridge_iam_role"></a> [jira\_eventbridge\_iam\_role](#module\_jira\_eventbridge\_iam\_role) | schubergphilis/mcaf-role/aws | ~> 0.4.0 |
 | <a name="module_jira_lambda"></a> [jira\_lambda](#module\_jira\_lambda) | schubergphilis/mcaf-lambda/aws | ~> 1.1.0 |
-| <a name="module_jira_lambda_deployment_package"></a> [jira\_lambda\_deployment\_package](#module\_jira\_lambda\_deployment\_package) | terraform-aws-modules/lambda/aws | ~> 3.3.0 |
+| <a name="module_jira_lambda_deployment_package"></a> [jira\_lambda\_deployment\_package](#module\_jira\_lambda\_deployment\_package) | terraform-aws-modules/lambda/aws | ~> 7.7.1 |
 | <a name="module_jira_lambda_iam_role"></a> [jira\_lambda\_iam\_role](#module\_jira\_lambda\_iam\_role) | schubergphilis/mcaf-role/aws | ~> 0.3.2 |
-| <a name="module_jira_step_function_iam_role"></a> [jira\_step\_function\_iam\_role](#module\_jira\_step\_function\_iam\_role) | schubergphilis/mcaf-role/aws | ~> 0.3.2 |
+| <a name="module_jira_step_function_iam_role"></a> [jira\_step\_function\_iam\_role](#module\_jira\_step\_function\_iam\_role) | schubergphilis/mcaf-role/aws | ~> 0.4.0 |
 | <a name="module_servicenow_integration"></a> [servicenow\_integration](#module\_servicenow\_integration) | ./modules/servicenow/ | n/a |
 
 ## Resources

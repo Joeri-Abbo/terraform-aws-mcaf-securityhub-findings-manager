@@ -3,7 +3,7 @@ module "findings_manager_bucket" {
   #checkov:skip=CKV_AWS_145:Bug in CheckOV https://github.com/bridgecrewio/checkov/issues/3847
   #checkov:skip=CKV_AWS_19:Bug in CheckOV https://github.com/bridgecrewio/checkov/issues/3847
   source  = "schubergphilis/mcaf-s3/aws"
-  version = "~> 0.11.0"
+  version = "~> 0.14.1"
 
   name        = var.s3_bucket_name
   kms_key_arn = var.kms_key_arn
@@ -34,7 +34,7 @@ module "findings_manager_bucket" {
 # IAM role to be assumed by Lambda function
 module "findings_manager_lambda_iam_role" {
   source  = "schubergphilis/mcaf-role/aws"
-  version = "~> 0.3.2"
+  version = "~> 0.4.0"
 
   name                  = var.findings_manager_lambda_iam_role_name
   create_policy         = true
@@ -107,11 +107,11 @@ resource "aws_iam_role_policy_attachment" "findings_manager_lambda_iam_role" {
 # Create a Lambda zip deployment package with code and dependencies
 module "findings_manager_lambda_deployment_package" {
   source  = "terraform-aws-modules/lambda/aws"
-  version = "~> 3.3.0"
+  version = "~> 7.7.1"
 
   create_function          = false
   recreate_missing_package = false
-  runtime                  = "python3.8"
+  runtime                  = var.findings_manager_events_lambda.runtime
   s3_bucket                = module.findings_manager_bucket.name
   s3_object_storage_class  = "STANDARD"
   source_path              = "${path.module}/files/lambda-artifacts/securityhub-findings-manager"
@@ -126,7 +126,7 @@ module "findings_manager_lambda_deployment_package" {
 module "findings_manager_events_lambda" {
   #checkov:skip=CKV_AWS_272:Code signing not used for now
   source  = "schubergphilis/mcaf-lambda/aws"
-  version = "~> 1.1.0"
+  version = "~> 1.4.1"
 
   name                        = var.findings_manager_events_lambda.name
   create_policy               = false
@@ -206,7 +206,7 @@ resource "aws_cloudwatch_event_target" "findings_manager_events_lambda" {
 module "findings_manager_trigger_lambda" {
   #checkov:skip=CKV_AWS_272:Code signing not used for now
   source  = "schubergphilis/mcaf-lambda/aws"
-  version = "~> 1.1.0"
+  version = "~> 1.4.1"
 
   name                        = var.findings_manager_trigger_lambda.name
   create_policy               = false

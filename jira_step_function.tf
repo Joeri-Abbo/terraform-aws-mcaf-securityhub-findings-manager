@@ -3,7 +3,7 @@ module "jira_step_function_iam_role" {
   count = var.jira_integration.enabled ? 1 : 0
 
   source  = "schubergphilis/mcaf-role/aws"
-  version = "~> 0.3.2"
+  version = "~> 0.4.0"
 
   name                  = var.jira_step_function_iam_role_name
   create_policy         = true
@@ -50,7 +50,7 @@ module "jira_eventbridge_iam_role" {
   count = var.jira_integration.enabled ? 1 : 0
 
   source  = "schubergphilis/mcaf-role/aws"
-  version = "~> 0.3.2"
+  version = "~> 0.4.0"
 
   name                  = var.jira_eventbridge_iam_role_name
   create_policy         = true
