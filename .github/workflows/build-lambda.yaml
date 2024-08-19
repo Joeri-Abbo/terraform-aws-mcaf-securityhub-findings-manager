@@ -11,10 +11,12 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.8",
-        #  "3.9", "3.10", "3.11", "3.12"
+        python-version: ["3.8"
+        # , "3.9", "3.10", "3.11", "3.12"
+        ]
+        lambda-name: ["findings-manager-jira"
+        #,  "securityhub-findings-manager"
          ]
-        lambda-name: ["findings-manager-jira", "securityhub-findings-manager"]
 
     steps:
       - name: Checkout repository
@@ -61,12 +63,14 @@ jobs:
         with:
           path: files/build/
 
-      - name: Move artifacts to correct directories
+      - name: Move and rename artifacts
         run: |
           for dir in files/build/*; do
             if [ -d "$dir" ]; then
+              lambda_name=$(basename $dir | sed 's/-[0-9]\.[0-9]\+$//')
+              mkdir -p files/build/$lambda_name
               for file in $dir/*.zip; do
-                mv "$file" "$dir/../${dir##*/}/$(basename $file)"
+                mv "$file" "files/build/$lambda_name/"
               done
               rm -r "$dir"
             fi
