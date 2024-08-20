@@ -104,18 +104,12 @@ resource "aws_iam_role_policy_attachment" "findings_manager_lambda_iam_role" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
-# Create a Lambda zip deployment package with code and dependencies
-module "findings_manager_lambda_deployment_package" {
-  source  = "terraform-aws-modules/lambda/aws"
-  version = "~> 7.7.1"
-
-  create_function          = false
-  recreate_missing_package = false
-  runtime                  = "python3.8"
-  s3_bucket                = module.findings_manager_bucket.name
-  s3_object_storage_class  = "STANDARD"
-  source_path              = "${path.module}/files/lambda-artifacts/securityhub-findings-manager"
-  store_on_s3              = true
+resource "aws_s3_object" "lambda_package_finding_manager" {
+  bucket     = local.bucket_for_lambda_package.id
+  key        = "${var.findings_manager_events_lambda.name}-lambda_function_${var.python_version}.zip"
+  kms_key_id = var.kms_key_arn
+  source     = "files/pkg/securityhub-findings-manager/lambda_function_${var.python_version}.zip"
+  tags       = var.tags
 }
 
 ################################################################################
@@ -139,9 +133,10 @@ module "findings_manager_events_lambda" {
   memory_size                 = var.findings_manager_events_lambda.memory_size
   role_arn                    = module.findings_manager_lambda_iam_role.arn
   runtime                     = var.findings_manager_events_lambda.runtime
-  s3_bucket                   = var.s3_bucket_name
-  s3_key                      = module.findings_manager_lambda_deployment_package.s3_object.key
-  s3_object_version           = module.findings_manager_lambda_deployment_package.s3_object.version_id
+  s3_bucket                   = "${var.s3_bucket_name}-lambda-${data.aws_caller_identity.current.account_id}"
+  s3_key                      = aws_s3_object.lambda_package_finding_manager.key
+  s3_object_version           = aws_s3_object.lambda_package_finding_manager.version_id
+  source_code_hash            = aws_s3_object.lambda_package_finding_manager.checksum_sha256
   security_group_egress_rules = var.findings_manager_events_lambda.security_group_egress_rules
   subnet_ids                  = var.subnet_ids
   tags                        = var.tags
@@ -219,9 +214,10 @@ module "findings_manager_trigger_lambda" {
   memory_size                 = var.findings_manager_trigger_lambda.memory_size
   role_arn                    = module.findings_manager_lambda_iam_role.arn
   runtime                     = var.findings_manager_trigger_lambda.runtime
-  s3_bucket                   = var.s3_bucket_name
-  s3_key                      = module.findings_manager_lambda_deployment_package.s3_object.key
-  s3_object_version           = module.findings_manager_lambda_deployment_package.s3_object.version_id
+  s3_bucket                   = "${var.s3_bucket_name}-lambda-${data.aws_caller_identity.current.account_id}"
+  s3_key                      = aws_s3_object.findings_manager_events_lambda.key
+  s3_object_version           = aws_s3_object.findings_manager_events_lambda.version_id
+  source_code_hash            = aws_s3_object.findings_manager_events_lambda.checksum_sha256
   security_group_egress_rules = var.findings_manager_trigger_lambda.security_group_egress_rules
   subnet_ids                  = var.subnet_ids
   tags                        = var.tags

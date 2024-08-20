@@ -79,22 +79,13 @@ resource "aws_iam_role_policy_attachment" "jira_lambda_iam_role_vpc_policy_attac
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
-# Create a Lambda zip deployment package with code and dependencies
-module "jira_lambda_deployment_package" {
-  count = var.jira_integration.enabled ? 1 : 0
-
-  source  = "terraform-aws-modules/lambda/aws"
-  version = "~> 7.7.1"
-
-  create_function          = false
-  recreate_missing_package = false
-  runtime                  = "python3.8"
-  s3_bucket                = module.findings_manager_bucket.name
-  s3_object_storage_class  = "STANDARD"
-  source_path              = "${path.module}/files/lambda-artifacts/findings-manager-jira"
-  store_on_s3              = true
+resource "aws_s3_object" "lambda_package_jira" {
+  bucket     = local.bucket_for_lambda_package.id
+  key        = "${var.jira_integration.lambda_settings.name}-lambda_function_${var.python_version}.zip"
+  kms_key_id = var.kms_key_arn
+  source     = "files/pkg/findings-manager-jira/lambda_function_${var.python_version}.zip"
+  tags       = var.tags
 }
-
 # Lambda function to create Jira ticket for Security Hub findings and set the workflow state to NOTIFIED
 module "jira_lambda" {
   #checkov:skip=CKV_AWS_272:Code signing not used for now
@@ -114,9 +105,10 @@ module "jira_lambda" {
   memory_size                 = var.jira_integration.lambda_settings.memory_size
   role_arn                    = module.jira_lambda_iam_role[0].arn
   runtime                     = var.jira_integration.lambda_settings.runtime
-  s3_bucket                   = var.s3_bucket_name
-  s3_key                      = module.jira_lambda_deployment_package[0].s3_object.key
-  s3_object_version           = module.jira_lambda_deployment_package[0].s3_object.version_id
+  s3_bucket                   = "${var.s3_bucket_name}-lambda-${data.aws_caller_identity.current.account_id}"
+  s3_key                      = aws_s3_object.findings_manager_events_lambda.key
+  s3_object_version           = aws_s3_object.findings_manager_events_lambda.version_id
+  source_code_hash            = aws_s3_object.findings_manager_events_lambda.checksum_sha256
   security_group_egress_rules = var.jira_integration.security_group_egress_rules
   subnet_ids                  = var.subnet_ids
   tags                        = var.tags
