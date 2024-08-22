@@ -34,7 +34,7 @@ module "findings_manager_bucket" {
 # IAM role to be assumed by Lambda function
 module "findings_manager_lambda_iam_role" {
   source  = "schubergphilis/mcaf-role/aws"
-  version = "~> 0.3.2"
+  version = "~> 0.4.0"
 
   name                  = var.findings_manager_lambda_iam_role_name
   create_policy         = true
@@ -122,11 +122,10 @@ module "findings_manager_events_lambda" {
   source  = "schubergphilis/mcaf-lambda/aws"
   version = "~> 1.4.1"
 
-  name                   = var.findings_manager_events_lambda.name
-  create_policy          = false
-  create_s3_dummy_object = false
-  description            = "Lambda to manage Security Hub findings in response to an EventBridge event"
-  # filename                    = module.findings_manager_lambda_deployment_package.local_filename
+  name                        = var.findings_manager_events_lambda.name
+  create_policy               = false
+  create_s3_dummy_object      = false
+  description                 = "Lambda to manage Security Hub findings in response to an EventBridge event"
   handler                     = "securityhub_events.lambda_handler"
   kms_key_arn                 = var.kms_key_arn
   log_retention               = 365
@@ -149,6 +148,7 @@ module "findings_manager_events_lambda" {
     POWERTOOLS_LOGGER_LOG_EVENT = "false"
     POWERTOOLS_SERVICE_NAME     = "securityhub-findings-manager-events"
   }
+  depends_on = [aws_s3_object.lambda_package_finding_manager]
 }
 
 # EventBridge Rule that detect Security Hub events with compliance status as failed
