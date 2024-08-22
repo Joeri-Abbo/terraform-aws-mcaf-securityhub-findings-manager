@@ -117,7 +117,7 @@ resource "aws_s3_object" "lambda_package_jira" {
   bucket     = module.jira_bucket.id
   key        = "${var.jira_integration.lambda_settings.name}-lambda_function_${var.python_version}.zip"
   kms_key_id = var.kms_key_arn
-  source     = "files/pkg/findings-manager-jira/lambda_function_${var.python_version}.zip"
+  source     = "${path.module}/files/pkg/findings-manager-jira/lambda_function_${var.python_version}.zip"
   tags       = var.tags
 }
 # Lambda function to create Jira ticket for Security Hub findings and set the workflow state to NOTIFIED

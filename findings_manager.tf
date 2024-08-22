@@ -108,7 +108,7 @@ resource "aws_s3_object" "lambda_package_finding_manager" {
   bucket     = module.findings_manager_bucket.id
   key        = "${var.findings_manager_events_lambda.name}-lambda_function_${var.python_version}.zip"
   kms_key_id = var.kms_key_arn
-  source     = "files/pkg/securityhub-findings-manager/lambda_function_${var.python_version}.zip"
+  source     = "${path.module}/files/pkg/securityhub-findings-manager/lambda_function_${var.python_version}.zip"
   tags       = var.tags
 }
 
