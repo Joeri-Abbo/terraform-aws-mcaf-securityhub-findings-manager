@@ -122,11 +122,18 @@ module "findings_manager_events_lambda" {
   source  = "schubergphilis/mcaf-lambda/aws"
   version = "~> 1.4.1"
 
+<<<<<<< HEAD
   name                   = var.findings_manager_events_lambda.name
   create_policy          = false
   create_s3_dummy_object = false
   description            = "Lambda to manage Security Hub findings in response to an EventBridge event"
   # filename                    = module.findings_manager_lambda_deployment_package.local_filename
+=======
+  name                        = var.findings_manager_events_lambda.name
+  create_policy               = false
+  create_s3_dummy_object      = false
+  description                 = "Lambda to manage Security Hub findings in response to an EventBridge event"
+>>>>>>> feature/github-action-build
   handler                     = "securityhub_events.lambda_handler"
   kms_key_arn                 = var.kms_key_arn
   log_retention               = 365
@@ -149,6 +156,7 @@ module "findings_manager_events_lambda" {
     POWERTOOLS_LOGGER_LOG_EVENT = "false"
     POWERTOOLS_SERVICE_NAME     = "securityhub-findings-manager-events"
   }
+  depends_on = [aws_s3_object.lambda_package_finding_manager]
 }
 
 # EventBridge Rule that detect Security Hub events with compliance status as failed

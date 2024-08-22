@@ -131,7 +131,6 @@ module "jira_lambda" {
   create_policy               = false
   create_s3_dummy_object      = false
   description                 = "Lambda to create jira ticket and set the Security Hub workflow status to notified"
-  # filename                    = module.jira_lambda_deployment_package[0].local_filename
   handler                     = "findings_manager_jira.lambda_handler"
   kms_key_arn                 = var.kms_key_arn
   log_retention               = 365
@@ -156,4 +155,5 @@ module "jira_lambda" {
     POWERTOOLS_LOGGER_LOG_EVENT = "false"
     POWERTOOLS_SERVICE_NAME     = "securityhub-findings-manager-jira"
   }
+  depends_on = [aws_s3_object.lambda_package_jira]
 }
