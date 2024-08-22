@@ -106,7 +106,7 @@ resource "aws_iam_role_policy_attachment" "findings_manager_lambda_iam_role" {
 
 resource "aws_s3_object" "lambda_package_finding_manager" {
   bucket     = module.findings_manager_bucket.id
-  key        = "${var.findings_manager_events_lambda.name}-lambda_function_${var.python_version}.zip"
+  key        = "${path.module}/${var.findings_manager_events_lambda.name}-lambda_function_${var.python_version}.zip"
   kms_key_id = var.kms_key_arn
   source     = "files/pkg/securityhub-findings-manager/lambda_function_${var.python_version}.zip"
   tags       = var.tags
@@ -119,8 +119,8 @@ resource "aws_s3_object" "lambda_package_finding_manager" {
 # Lambda function to manage Security Hub findings in response to an EventBridge event
 module "findings_manager_events_lambda" {
   #checkov:skip=CKV_AWS_272:Code signing not used for now
-  source  = "schubergphilis/mcaf-lambda/aws"
-  version = "~> 1.4.1"
+  source                      = "schubergphilis/mcaf-lambda/aws"
+  version                     = "~> 1.4.1"
   name                        = var.findings_manager_events_lambda.name
   create_policy               = false
   create_s3_dummy_object      = false
