@@ -3,7 +3,7 @@ module "findings_manager_bucket" {
   #checkov:skip=CKV_AWS_145:Bug in CheckOV https://github.com/bridgecrewio/checkov/issues/3847
   #checkov:skip=CKV_AWS_19:Bug in CheckOV https://github.com/bridgecrewio/checkov/issues/3847
   source  = "schubergphilis/mcaf-s3/aws"
-  version = "~> 0.11.0"
+  version = "~> 0.14.1"
 
   name        = var.s3_bucket_name
   kms_key_arn = var.kms_key_arn
@@ -105,7 +105,7 @@ resource "aws_iam_role_policy_attachment" "findings_manager_lambda_iam_role" {
 }
 
 resource "aws_s3_object" "lambda_package_finding_manager" {
-  bucket     = local.bucket_for_lambda_package.id
+  bucket     = module.findings_manager_bucket.id
   key        = "${var.findings_manager_events_lambda.name}-lambda_function_${var.python_version}.zip"
   kms_key_id = var.kms_key_arn
   source     = "files/pkg/securityhub-findings-manager/lambda_function_${var.python_version}.zip"
@@ -120,13 +120,13 @@ resource "aws_s3_object" "lambda_package_finding_manager" {
 module "findings_manager_events_lambda" {
   #checkov:skip=CKV_AWS_272:Code signing not used for now
   source  = "schubergphilis/mcaf-lambda/aws"
-  version = "~> 1.1.0"
+  version = "~> 1.4.1"
 
-  name                        = var.findings_manager_events_lambda.name
-  create_policy               = false
-  create_s3_dummy_object      = false
-  description                 = "Lambda to manage Security Hub findings in response to an EventBridge event"
-  filename                    = module.findings_manager_lambda_deployment_package.local_filename
+  name                   = var.findings_manager_events_lambda.name
+  create_policy          = false
+  create_s3_dummy_object = false
+  description            = "Lambda to manage Security Hub findings in response to an EventBridge event"
+  # filename                    = module.findings_manager_lambda_deployment_package.local_filename
   handler                     = "securityhub_events.lambda_handler"
   kms_key_arn                 = var.kms_key_arn
   log_retention               = 365
@@ -201,13 +201,13 @@ resource "aws_cloudwatch_event_target" "findings_manager_events_lambda" {
 module "findings_manager_trigger_lambda" {
   #checkov:skip=CKV_AWS_272:Code signing not used for now
   source  = "schubergphilis/mcaf-lambda/aws"
-  version = "~> 1.1.0"
+  version = "~> 1.4.1"
 
-  name                        = var.findings_manager_trigger_lambda.name
-  create_policy               = false
-  create_s3_dummy_object      = false
-  description                 = "Lambda to manage Security Hub findings in response to S3 rules file uploads"
-  filename                    = module.findings_manager_lambda_deployment_package.local_filename
+  name                   = var.findings_manager_trigger_lambda.name
+  create_policy          = false
+  create_s3_dummy_object = false
+  description            = "Lambda to manage Security Hub findings in response to S3 rules file uploads"
+  # filename                    = module.findings_manager_lambda_deployment_package.local_filename
   handler                     = "securityhub_trigger.lambda_handler"
   kms_key_arn                 = var.kms_key_arn
   log_retention               = 365
@@ -215,9 +215,9 @@ module "findings_manager_trigger_lambda" {
   role_arn                    = module.findings_manager_lambda_iam_role.arn
   runtime                     = var.findings_manager_trigger_lambda.runtime
   s3_bucket                   = "${var.s3_bucket_name}-lambda-${data.aws_caller_identity.current.account_id}"
-  s3_key                      = aws_s3_object.findings_manager_events_lambda.key
-  s3_object_version           = aws_s3_object.findings_manager_events_lambda.version_id
-  source_code_hash            = aws_s3_object.findings_manager_events_lambda.checksum_sha256
+  s3_key                      = aws_s3_object.lambda_package_finding_manager.key
+  s3_object_version           = aws_s3_object.lambda_package_finding_manager.version_id
+  source_code_hash            = aws_s3_object.lambda_package_finding_manager.checksum_sha256
   security_group_egress_rules = var.findings_manager_trigger_lambda.security_group_egress_rules
   subnet_ids                  = var.subnet_ids
   tags                        = var.tags
