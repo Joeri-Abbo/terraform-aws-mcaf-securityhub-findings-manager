@@ -1,3 +1,36 @@
+# S3 bucket to store Lambda artifacts and the rules list
+module "jira_bucket" {
+  #checkov:skip=CKV_AWS_145:Bug in CheckOV https://github.com/bridgecrewio/checkov/issues/3847
+  #checkov:skip=CKV_AWS_19:Bug in CheckOV https://github.com/bridgecrewio/checkov/issues/3847
+  source  = "schubergphilis/mcaf-s3/aws"
+  version = "~> 0.14.1"
+
+  name        = "${var.s3_bucket_name}-jira"
+  kms_key_arn = var.kms_key_arn
+  logging     = null
+  tags        = var.tags
+  versioning  = true
+
+  lifecycle_rule = [
+    {
+      id      = "default"
+      enabled = true
+
+      abort_incomplete_multipart_upload = {
+        days_after_initiation = 7
+      }
+
+      expiration = {
+        expired_object_delete_marker = true
+      }
+
+      noncurrent_version_expiration = {
+        noncurrent_days = 7
+      }
+    }
+  ]
+}
+
 # IAM role to be assumed by Lambda Function
 module "jira_lambda_iam_role" {
   count = var.jira_integration.enabled ? 1 : 0
@@ -80,7 +113,7 @@ resource "aws_iam_role_policy_attachment" "jira_lambda_iam_role_vpc_policy_attac
 }
 
 resource "aws_s3_object" "lambda_package_jira" {
-  bucket     = local.bucket_for_lambda_package.id
+  bucket     = module.jira_bucket.id
   key        = "${var.jira_integration.lambda_settings.name}-lambda_function_${var.python_version}.zip"
   kms_key_id = var.kms_key_arn
   source     = "files/pkg/findings-manager-jira/lambda_function_${var.python_version}.zip"
@@ -98,7 +131,7 @@ module "jira_lambda" {
   create_policy               = false
   create_s3_dummy_object      = false
   description                 = "Lambda to create jira ticket and set the Security Hub workflow status to notified"
-  filename                    = module.jira_lambda_deployment_package[0].local_filename
+  # filename                    = module.jira_lambda_deployment_package[0].local_filename
   handler                     = "findings_manager_jira.lambda_handler"
   kms_key_arn                 = var.kms_key_arn
   log_retention               = 365
@@ -106,9 +139,9 @@ module "jira_lambda" {
   role_arn                    = module.jira_lambda_iam_role[0].arn
   runtime                     = var.jira_integration.lambda_settings.runtime
   s3_bucket                   = "${var.s3_bucket_name}-lambda-${data.aws_caller_identity.current.account_id}"
-  s3_key                      = aws_s3_object.findings_manager_events_lambda.key
-  s3_object_version           = aws_s3_object.findings_manager_events_lambda.version_id
-  source_code_hash            = aws_s3_object.findings_manager_events_lambda.checksum_sha256
+  s3_key                      = aws_s3_object.lambda_package_jira.key
+  s3_object_version           = aws_s3_object.lambda_package_jira.version_id
+  source_code_hash            = aws_s3_object.lambda_package_jira.checksum_sha256
   security_group_egress_rules = var.jira_integration.security_group_egress_rules
   subnet_ids                  = var.subnet_ids
   tags                        = var.tags
