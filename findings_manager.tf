@@ -121,19 +121,10 @@ module "findings_manager_events_lambda" {
   #checkov:skip=CKV_AWS_272:Code signing not used for now
   source  = "schubergphilis/mcaf-lambda/aws"
   version = "~> 1.4.1"
-
-<<<<<<< HEAD
-  name                   = var.findings_manager_events_lambda.name
-  create_policy          = false
-  create_s3_dummy_object = false
-  description            = "Lambda to manage Security Hub findings in response to an EventBridge event"
-  # filename                    = module.findings_manager_lambda_deployment_package.local_filename
-=======
   name                        = var.findings_manager_events_lambda.name
   create_policy               = false
   create_s3_dummy_object      = false
   description                 = "Lambda to manage Security Hub findings in response to an EventBridge event"
->>>>>>> feature/github-action-build
   handler                     = "securityhub_events.lambda_handler"
   kms_key_arn                 = var.kms_key_arn
   log_retention               = 365
